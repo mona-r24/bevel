@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: bevel-authority-authority-trustee
+  annotations:
+    fluxcd.io/automated: "false"
+  namespace: bevel-authority-ns
+spec:
+  releaseName: bevel-authority-authority-trustee
+  interval: 1m
+  chart:
+   spec:
+    chart: platforms/hyperledger-indy/charts/indy-key-mgmt
+    sourceRef:
+      kind: GitRepository
+      name: flux-bevel
+      namespace: flux-bevel
+  values:
+    metadata:
+      name: bevel-authority-authority-trustee
+      namespace: bevel-authority-ns
+    network:
+      name: bevel
+    image:
+      name: bevel-authority
+      repository: ghcr.io/hyperledger/bevel-indy-key-mgmt:1.11.0
+      pullSecret: regcred
+      pullPolicy: IfNotPresent
+    vault:
+      address: http://192.168.49.2:19342
+      version: "2"
+      keyPath: bevel-authority.trustees
+      identity: authority-trustee
+      auth_path: kubernetes-bevel-authority-admin-auth
+      certsecretprefix: bevel-authority
+    account:
+      service: bevel-authority-admin-vault-auth
+      role: rw
