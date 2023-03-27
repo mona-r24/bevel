@@ -1,0 +1,40 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: bevel-provider-provider-steward-1-auth-job
+  annotations:
+    fluxcd.io/automated: "false"
+  namespace: bevel-provider-ns
+spec:
+  releaseName: bevel-provider-provider-steward-1-auth-job
+  interval: 1m
+  chart:
+   spec:
+    chart: platforms/hyperledger-indy/charts/indy-auth-job
+    sourceRef:
+      kind: GitRepository
+      name: flux-bevel
+      namespace: flux-bevel
+  values:
+    metadata:
+      name: bevel-provider-provider-steward-1-auth-job
+      namespace: bevel-provider-ns
+    network:
+      name: bevel
+      kubernetes_url: https://192.168.49.2:8443
+    image:
+      name: bevel-provider
+      repository: alpine:3.9.4
+      pullPolicy: IfNotPresent
+    vault:
+      address: http://192.168.49.2:19342
+      identity: provider-steward-1
+      admin_auth_path: kubernetes-bevel-provider-admin-auth
+      policy: bevel-provider-provider-steward-1-ro
+      policy_content: path \"/bevel-provider/data/stewards/provider-steward-1/*\" { capabilities = [ \"read\", \"list\" ] }
+      auth_path: kubernetes-bevel-provider-provider-steward-1-auth
+    account:
+      admin_service: bevel-provider-admin-vault-auth
+      admin_role: rw
+      service: bevel-provider-provider-steward-1-vault-auth
+      role: ro
